@@ -56,3 +56,10 @@
 	"logger.h"
 	<stdio.h>
 
+1381944150 source:c:\users\bria\documents\github\glsaver\glsaver\texture.c
+	"texture.h"
+	<gl/gl.h>
+	<stdio.h>
+
+1381942271 c:\users\bria\documents\github\glsaver\glsaver\texture.h
+

@@ -42,9 +42,21 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="animation.h" />
+		<Unit filename="logger.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="logger.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="texture.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="texture.h" />
+		<Unit filename="trigger.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="trigger.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

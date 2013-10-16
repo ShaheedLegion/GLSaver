@@ -126,7 +126,7 @@ void Render(HDC * hDC) //increment and display
 
         //glFlush();
         SwapBuffers(*hDC);
-        LogScreenD(*hDC, "Current Rotation:", rotationz);
-        LogScreenI(*hDC, "Current Color:", color);
+        //LogScreenD(*hDC, "Current Rotation:", rotationz);
+        //LogScreenI(*hDC, "Current Color:", color);
         glPopMatrix();
 }
