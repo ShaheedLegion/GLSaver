@@ -39,10 +39,10 @@ void UpdateTriggerValue(_lp_trigger _trig)
 	switch (_trig->_speed)
 	{
 		case TRIG_SLOW:
-			trigdelta = 0.002d;
+			trigdelta = 0.006d;
 			break;
 		case TRIG_MEDIUM:
-			trigdelta = 0.0046d;
+			trigdelta = 0.009d;
 			break;
 		case TRIG_FAST:
 			trigdelta = 0.06d;
