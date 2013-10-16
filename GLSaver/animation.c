@@ -52,9 +52,9 @@ void SetupAnimation(int w, int h)
         _curr++;
     }
 
-    _spin_triggers[0] = SetTrigger(465);    //delta is in frames
-    _spin_triggers[1] = SetTrigger(800);    //delta is in frames
-    _spin_triggers[2] = SetTrigger(1265);    //delta is in frames
+    _spin_triggers[0] = SetTrigger(TRIG_MEDIUM, 465);    //delta is in frames
+    _spin_triggers[1] = SetTrigger(TRIG_SLOW, 800);    //delta is in frames
+    _spin_triggers[2] = SetTrigger(TRIG_FAST, 1265);    //delta is in frames
 }
 
 //clean up any objects created by this "class"
@@ -84,14 +84,29 @@ void CheckStar(_lp_star star, int idx)
     }
 }
 
+int CalculateColor(int distance)
+{
+	//need to make color a percentage of distance 
+	double percentage = (double)(distance / nearest);
+	int value = (int)((double)255 * percentage);
+	
+	if (value > 255)	//sanity check for when distance is > nearest
+		return 255;
+	
+	if (value < 0)	//sanity check for when distance is < 0
+		return 0;
+
+	return value;
+}
+
 void Render(HDC * hDC) //increment and display
 {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glPushMatrix();
-        //glRotatef(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
-        //glRotatef(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
-        glRotatef(UpdateTrigger(_spin_triggers[2]), 0.0, 0.0, 1.0);
+        glRotated(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
+        glRotated(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
+        glRotated(UpdateTrigger(_spin_triggers[2]), 0.0, 0.0, 1.0);
 
         glBegin(GL_POINTS);
 
@@ -100,7 +115,7 @@ void Render(HDC * hDC) //increment and display
         for (i = 0; i < _num_stars; i++)
         {
             glVertex3i(_curr->x, _curr->y, _curr->z);
-            color = 50 + (_curr->z / 2);
+            color = CalculateColor(_curr->z);
             glColor3ub(color, color, color);
             CheckStar(_curr, i);
             _curr++;
