@@ -38,7 +38,7 @@ void SetupAnimation(int w, int h)
     gluPerspective(45, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0.0, 0.0, (GLdouble)(nearest / 2), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(0.0, 0.0, (GLdouble)(nearest), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     //camera xyz, the xyz to look at, and the up vector (+y is up)
 
     _stars = (_lp_star)malloc(_num_stars * sizeof(_star));
@@ -48,7 +48,7 @@ void SetupAnimation(int w, int h)
     for (i = 0; i < _num_stars; i++)
     {
         _curr->z = nearest + 1;
-        CheckStar(_curr, i + (_num_stars / 2));
+        CheckStar(_curr, i/* + (_num_stars / 2)*/);
         _curr++;
     }
 
@@ -66,14 +66,14 @@ void CleanupAnimation()
 
 void CheckStar(_lp_star star, int idx)
 {
-    if (idx > (_num_stars / 2))
+    if (idx < _num_stars)
     {
         star->z++;
         if (star->z > nearest)
         {
             star->x = (rand() % Width) - (Width / 2);
             star->y = (rand() % Height) - (Height / 2);
-            star->z = (rand() % (nearest / 2));
+            star->z = (rand() % nearest);
         }
     }
     else if (idx > _num_stars)
@@ -86,15 +86,15 @@ void CheckStar(_lp_star star, int idx)
 
 int CalculateColor(int distance)
 {
-	//need to make color a percentage of distance 
-	double percentage = (double)(distance / nearest);
-	int value = (int)((double)255 * percentage);
-	
+	//need to make color a percentage of distance
+	double percentage = (double)((double)distance / (double)nearest);
+	int value = (int)((double)255.0d * percentage);
+
 	if (value > 255)	//sanity check for when distance is > nearest
 		return 255;
-	
+
 	if (value < 0)	//sanity check for when distance is < 0
-		return 0;
+		return 64;
 
 	return value;
 }
@@ -106,7 +106,8 @@ void Render(HDC * hDC) //increment and display
         glPushMatrix();
         glRotated(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
         glRotated(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
-        glRotated(UpdateTrigger(_spin_triggers[2]), 0.0, 0.0, 1.0);
+        double rotationz = UpdateTrigger(_spin_triggers[2]);
+        glRotated(rotationz, 0.0, 0.0, 1.0);
 
         glBegin(GL_POINTS);
 
@@ -125,5 +126,7 @@ void Render(HDC * hDC) //increment and display
 
         //glFlush();
         SwapBuffers(*hDC);
+        LogScreenD(*hDC, "Current Rotation:", rotationz);
+        LogScreenI(*hDC, "Current Color:", color);
         glPopMatrix();
 }

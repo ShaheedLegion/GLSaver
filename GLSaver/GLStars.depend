@@ -27,3 +27,32 @@
 
 1381855286 c:\projects\code\glstars\trigger.h
 
+1381940722 source:c:\users\bria\documents\github\glsaver\glsaver\animation.c
+	"animation.h"
+	<gl/gl.h>
+	<gl/glu.h>
+	"logger.h"
+	"trigger.h"
+
+1381937603 c:\users\bria\documents\github\glsaver\glsaver\animation.h
+	<Windows.h>
+
+1381940609 c:\users\bria\documents\github\glsaver\glsaver\logger.h
+	<Windows.h>
+
+1381937617 c:\users\bria\documents\github\glsaver\glsaver\trigger.h
+
+1381937342 source:c:\users\bria\documents\github\glsaver\glsaver\main.c
+	<windows.h>
+	<scrnsave.h>
+	<gl/gl.h>
+	<gl/glu.h>
+	"animation.h"
+
+1381940028 source:c:\users\bria\documents\github\glsaver\glsaver\trigger.c
+	"trigger.h"
+
+1381940609 source:c:\users\bria\documents\github\glsaver\glsaver\logger.c
+	"logger.h"
+	<stdio.h>
+

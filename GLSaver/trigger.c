@@ -22,7 +22,7 @@ int SetTrigger(int triggerSpeed, int delta)
     {
         _triggers[_current_trigger]._delta = delta;
         _triggers[_current_trigger]._timer = 0;
-        _triggers[_current_trigger]._value = (double)delta;
+        _triggers[_current_trigger]._value = (double)0;
         _triggers[_current_trigger]._flip = 0;
 		_triggers[_current_trigger]._speed = triggerSpeed;
 
@@ -39,22 +39,22 @@ void UpdateTriggerValue(_lp_trigger _trig)
 	switch (_trig->_speed)
 	{
 		case TRIG_SLOW:
-			trigdelta = 0.2d;
+			trigdelta = 0.002d;
 			break;
 		case TRIG_MEDIUM:
-			trigdelta = 0.46d;
+			trigdelta = 0.0046d;
 			break;
 		case TRIG_FAST:
-			trigdelta = 1.2d;
+			trigdelta = 0.06d;
 			break;
 		default:
-			trigdelta = 1.0d;
+			trigdelta = 0.05d;
 			break;
 	}
         if (_trig->_flip)
-            _trig->_value -= trgdelta;
+            _trig->_value -= trigdelta;
         else
-            _trig->_value += trgdelta;
+            _trig->_value += trigdelta;
 }
 
 double UpdateTrigger(int _id)
