@@ -1,6 +1,6 @@
 The GLSaver Project
 
-The GLSaver project is a simple screensaver project which is writtern in the C langage. The code runs on Windows operating systems, and require certain Windows components to run (SCRNSAVE.LIB, Windows.h). Beyond the dependency on Windows itself, the project has no external dependencies.
+The GLSaver project is a simple screensaver project which is written in the C langage. The code runs on Windows operating systems, and require certain Windows components to run (SCRNSAVE.LIB, Windows.h). Beyond the dependency on Windows itself, the project has no external dependencies.
 
 As of 17 October 2013 the project will be using bitmap resources for textures, and these are simple raw files. If the format changes, then the utility to generate the new format will be attached to some portion of the code, or within the same repository. The projects aims to create the best looking, most compatible screensaver using the simplest code and the easiest to understand/code approach. The project is intended as a step-ladder for new coders who want to get their hands dirty with OpenGL coding, without having to deal with controls or input handling.
 
