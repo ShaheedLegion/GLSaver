@@ -1,10 +1,12 @@
 #include "texture.h"
 #include <gl/gl.h>
 #include <stdio.h>
-#define numtex 9
+#include "logger.h"
+#define numtex 3
 //totally arbitrary number.
 
 GLuint _textures[numtex];
+int _types[numtex];
 int _curr_tex = 0;
 
 typedef struct tagtex
@@ -17,7 +19,7 @@ typedef struct tagtex
 
 _lp_texture LoadTextureFile(char * path, int w, int h)
 {
-    FILE * _f = fopen(path, "r");
+    FILE * _f = fopen(path, "rb");
     if (_f == 0)
         return 0;
 
@@ -28,17 +30,35 @@ _lp_texture LoadTextureFile(char * path, int w, int h)
     //metadata to the files so that we can load the image size from the file itself.
     _tex->_w = w; //simply generate textures to match these params
     _tex->_h = h;
-    _tex->bpp = 24;
+    _tex->bpp = 32;
 
-    int datasize = ((_tex->_w * _tex->_h) * (_tex->bpp / 8)) * sizeof(unsigned char);
-    _tex->_data = (unsigned char *)malloc(datasize);
-    fread(_tex->_data, datasize, 1, _f);
-
+    int dataSize = ((_tex->_w * _tex->_h) * (4));// * sizeof(unsigned char);
+    //LogI("Texture w:", _tex->_w);
+    //LogI("Texture h:", _tex->_h);
+    //LogI("Data Size:", dataSize);
+    _tex->_data = (unsigned char *)malloc(dataSize);
+    size_t read = fread(_tex->_data, 1, dataSize, _f);
+    //LogI("Data Read:", read);
     fclose(_f);
     return _tex;
 }
 
-int LoadTexture(char * tex, int w, int h)
+void SaveTexture(_lp_texture tex, int idx)
+{
+    char _buf[256];
+    sprintf(_buf, "texture%d.raw", idx);
+    FILE * _f = fopen(_buf, "wb");
+
+    if (_f != 0)
+    {
+        int dataSize = ((tex->_w * tex->_h) * (4));// * sizeof(unsigned char);
+        fwrite(tex->_data, 1, dataSize, _f);
+        fflush(_f);
+        fclose(_f);
+    }
+}
+
+int LoadTexture(char * tex, int w, int h, int type)
 {
     if (_curr_tex < numtex)
     {
@@ -46,16 +66,24 @@ int LoadTexture(char * tex, int w, int h)
         if (_text == 0)
             return -1;
 
+        // set the texture type
+        _types[_curr_tex] = type;
         // Generate and Bind The Texture
         glGenTextures(1, &_textures[_curr_tex]);
         glBindTexture(GL_TEXTURE_2D, _textures[_curr_tex]);
-        glTexImage2D(GL_TEXTURE_2D, 0, 3,
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
                      _text->_w, _text->_h,
-                     0, GL_RGB, GL_UNSIGNED_BYTE, _text->_data);
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _text->_data);
         int _retval = _curr_tex;
+        //SaveTexture(_text, _retval);
         _curr_tex++;
 
         free(_text->_data); //clean up any ram we used for the texture data
+        _text->_data = 0;
         free(_text);    //clean up any ram we used for the texture
 
         return _retval;
@@ -63,18 +91,47 @@ int LoadTexture(char * tex, int w, int h)
     return -1;
 }
 
-LoadTextures()
+void LoadTextures()
 {
-    LoadTexture("nebula.raw", 256, 256);    //takes care of the texture binding
-    LoadTexture("star-4point.raw", 16, 16);    //takes care of the texture binding
-    LoadTexture("star-round.raw", 32, 32);    //takes care of the texture binding
-    LoadTexture("sun.raw", 256, 256);    //takes care of the texture binding
+    memset(_textures, 0, numtex * sizeof(GLuint));
+    memset(_types, 0, numtex * sizeof(int));
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
 
+    LoadTexture("Textures/star-blue.raw", 256, 256, TYPE_STAR);    //takes care of the texture binding
+    LoadTexture("Textures/star-green.raw", 256, 256, TYPE_STAR);    //takes care of the texture binding
+    LoadTexture("Textures/star-yellow.raw", 256, 256, TYPE_STAR);    //takes care of the texture binding
+
+/*
     //the following textures require spherical mapping.
-    LoadTexture("earth.raw", 720, 360);    //takes care of the texture binding
-    LoadTexture("jupiter.raw", 720, 360);    //takes care of the texture binding
-    LoadTexture("mars.raw", 720, 360);    //takes care of the texture binding
-    LoadTexture("saturn.raw", 720, 360);    //takes care of the texture binding
-    LoadTexture("neptune.raw", 720, 360);    //takes care of the texture binding
+    LoadTexture("Textures/earth.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
+    LoadTexture("Textures/jupiter.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
+    LoadTexture("Textures/mars.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
+    LoadTexture("Textures/saturn.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
+    LoadTexture("Textures/neptune.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
+*/
 }
 
+int GetTextureID(int idx)
+{
+    if (idx >= 0 && idx < numtex)
+    {
+        return _textures[idx];
+    }
+    return -1;
+}
+
+int GetTextureType(int idx)
+{
+    if (idx >= 0 && idx < numtex)
+    {
+        return _types[idx];
+    }
+    return -1;
+}
+
+int GetTextureCount()
+{
+    return numtex;
+}

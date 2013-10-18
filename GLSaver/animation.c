@@ -3,6 +3,7 @@
 #include <gl/glu.h>
 #include "logger.h"
 #include "trigger.h"
+#include "texture.h"
 
 //This file contains "private" declarations used internally by this file.
 int _num_stars = 7200;   //how many stars to display
@@ -22,6 +23,8 @@ typedef struct _tag_star
     int x;
     int y;
     int z;
+    int type;
+    int id;
 } _star, * _lp_star;
 _lp_star _stars = NULL;
 
@@ -32,15 +35,16 @@ void SetupAnimation(int w, int h)
     Width = w / 10;
     Height = h / 6;
 
+    glShadeModel(GL_FLAT);
     glViewport(0, 0, (GLint) w, (GLint) h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(10, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
+    gluPerspective(20, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     //camera xyz, the xyz to look at, and the up vector (+y is up)
-
+    LoadTextures();
     _stars = (_lp_star)malloc(_num_stars * sizeof(_star));
     int i;
     _lp_star _curr = _stars;
@@ -74,14 +78,25 @@ void CheckStar(_lp_star star, int idx)
             star->x = (rand() % Width) - (Width / 2);
             star->y = (rand() % Height) - (Height / 2);
             star->z = (rand() % nearest);
+
+            star->type = -1;    //set to not have texture by default
+            star->id = -1;
+            int idx = (rand() % GetTextureCount());
+            star->type = GetTextureType(idx);
+            star->id = GetTextureID(idx);
         }
     }
+/*
     else if (idx > _num_stars)
     {
             star->x = (rand() % Width) - (Width / 2);
             star->y = (rand() % Height) - (Height / 2);
             star->z = (rand() % nearest);
+            int idx = (rand() % GetTextureCount());
+            star->type = GetTextureType(idx);
+            star->id = GetTextureID(idx);
     }
+*/
 }
 
 int CalculateColor(int distance)
@@ -99,34 +114,53 @@ int CalculateColor(int distance)
 	return value;
 }
 
+void DrawStar(_lp_star star)
+{
+    float offset = 0.05;    //determines the size of the star
+    if (star->type == TYPE_NEB || star->type == TYPE_STAR)
+    {
+        glBindTexture(GL_TEXTURE_2D, star->id);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex3f(star->x - offset, star->y - offset, star->z);
+        glTexCoord2f(0.0, 1.0); glVertex3f(star->x - offset, star->y + offset, star->z);
+        glTexCoord2f(1.0, 1.0); glVertex3f(star->x + offset, star->y + offset, star->z);
+        glTexCoord2f(1.0, 0.0); glVertex3f(star->x + offset, star->y - offset, star->z);
+        glEnd();
+    }
+}
+
 void Render(HDC * hDC) //increment and display
 {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glPushMatrix();
-        glRotated(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
-        glRotated(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
-        double rotationz = UpdateTrigger(_spin_triggers[2]);
-        glRotated(rotationz, 0.0, 0.0, 1.0);
+    glPushMatrix();
+    glRotated(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
+    glRotated(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
+    double rotationz = UpdateTrigger(_spin_triggers[2]);
+    glRotated(rotationz, 0.0, 0.0, 1.0);
+    glEnable(GL_TEXTURE_2D);
 
-        glBegin(GL_POINTS);
+    int i;
+    _lp_star _curr = _stars;
 
-        int i, color;
-        _lp_star _curr = _stars;
-        for (i = 0; i < _num_stars; i++)
-        {
-            glVertex3i(_curr->x, _curr->y, _curr->z);
-            color = CalculateColor(_curr->z);
-            glColor3ub(color, color, color);
-            CheckStar(_curr, i);
-            _curr++;
-        }
+    for (i = 0; i < _num_stars; i++)
+    {
+        DrawStar(_curr);
+        CheckStar(_curr, i);
+        _curr++;
+    }
 
-        glEnd();
-
-        //glFlush();
-        SwapBuffers(*hDC);
-        //LogScreenD(*hDC, "Current Rotation:", rotationz);
-        //LogScreenI(*hDC, "Current Color:", color);
-        glPopMatrix();
+    //glFlush();
+    SwapBuffers(*hDC);
+/*
+    BeginLog();
+    for (i = 0; i < GetTextureCount(); i++)
+    {
+        LogScreenI(*hDC, "Texture Type:", GetTextureType(i));
+        LogScreenI(*hDC, "Texture ID:", GetTextureID(i));
+    }
+    EndLog();
+*/
+    //LogScreenD(*hDC, "Current Rotation:", rotationz);
+    glPopMatrix();
 }

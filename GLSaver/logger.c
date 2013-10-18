@@ -3,10 +3,11 @@
 
 char * logmsg = 0;
 int loglen = 256;
+int _tex_pos = 0;
 
 FILE * OpenLogFile()
 {
-    FILE * f = fopen("C:\\GLStarsLog.txt", "a+");
+    FILE * f = fopen("GLStarsLog.txt", "a+");
     return f;
 }
 
@@ -52,5 +53,16 @@ void LogScreenI(HDC dc, char * msg, int i)
     if (logmsg == 0)
         logmsg = (char *)malloc(loglen * sizeof(char));
     sprintf(logmsg, "%s %d", msg, i);
-    TextOut(dc, 10, 30, logmsg, strlen(logmsg));
+    TextOut(dc, 10, _tex_pos, logmsg, strlen(logmsg));
+    _tex_pos += 30;
+}
+
+void BeginLog()
+{
+    _tex_pos = 30;
+}
+
+void EndLog()
+{
+    _tex_pos = 0;
 }

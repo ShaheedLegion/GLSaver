@@ -3,9 +3,9 @@ https://www.opengl.org/wiki/Texturing_a_Sphere
 
 2D Textures:
   nebula 256 256
-  star-4point 16 16
-  star-round 32 32
-  sun 256 256
+  star-blue 256 256
+  star-green 256 256
+  star-yellow 256 256
 
 3D Spherical Textures:
   earth 720 360
