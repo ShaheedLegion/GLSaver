@@ -1,7 +1,7 @@
 #include "texture.h"
 #include <gl/gl.h>
 #include <stdio.h>
-#define numtex 24
+#define numtex 9
 //totally arbitrary number.
 
 GLuint _textures[numtex];
@@ -15,7 +15,7 @@ typedef struct tagtex
     unsigned char * _data;
 } _texture, *_lp_texture;
 
-_lp_texture LoadTextureFile(char * path)
+_lp_texture LoadTextureFile(char * path, int w, int h)
 {
     FILE * _f = fopen(path, "r");
     if (_f == 0)
@@ -26,8 +26,8 @@ _lp_texture LoadTextureFile(char * path)
     //for now we will assume that the images are all the same size.
     //This is wasteful, but we will write a converter later that processes raw files to add
     //metadata to the files so that we can load the image size from the file itself.
-    _tex->_w = 256; //simply generate textures to match these params
-    _tex->_h = 256;
+    _tex->_w = w; //simply generate textures to match these params
+    _tex->_h = h;
     _tex->bpp = 24;
 
     int datasize = ((_tex->_w * _tex->_h) * (_tex->bpp / 8)) * sizeof(unsigned char);
@@ -38,11 +38,11 @@ _lp_texture LoadTextureFile(char * path)
     return _tex;
 }
 
-int LoadTexture(char * tex)
+int LoadTexture(char * tex, int w, int h)
 {
     if (_curr_tex < numtex)
     {
-        _lp_texture _text = LoadTextureFile(tex);    //load the texture here...
+        _lp_texture _text = LoadTextureFile(tex, w, h);    //load the texture here...
         if (_text == 0)
             return -1;
 
@@ -63,7 +63,18 @@ int LoadTexture(char * tex)
     return -1;
 }
 
-void CleanupTextures()
+LoadTextures()
 {
+    LoadTexture("nebula.raw", 256, 256);    //takes care of the texture binding
+    LoadTexture("star-4point.raw", 16, 16);    //takes care of the texture binding
+    LoadTexture("star-round.raw", 32, 32);    //takes care of the texture binding
+    LoadTexture("sun.raw", 256, 256);    //takes care of the texture binding
 
+    //the following textures require spherical mapping.
+    LoadTexture("earth.raw", 720, 360);    //takes care of the texture binding
+    LoadTexture("jupiter.raw", 720, 360);    //takes care of the texture binding
+    LoadTexture("mars.raw", 720, 360);    //takes care of the texture binding
+    LoadTexture("saturn.raw", 720, 360);    //takes care of the texture binding
+    LoadTexture("neptune.raw", 720, 360);    //takes care of the texture binding
 }
+
