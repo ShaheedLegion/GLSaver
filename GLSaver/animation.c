@@ -30,12 +30,12 @@ void CheckStar(_lp_star star, int idx);  //forward declaration
 void SetupAnimation(int w, int h)
 {
     Width = w / 10;
-    Height = h / 8;
+    Height = h / 6;
 
     glViewport(0, 0, (GLint) w, (GLint) h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
+    gluPerspective(10, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -88,7 +88,7 @@ int CalculateColor(int distance)
 {
 	//need to make color a percentage of distance
 	double percentage = (double)((double)distance / (double)nearest);
-	int value = (int)((double)255.0d * percentage);
+	int value = (int)((double)255.0 * percentage);
 
 	if (value > 255)	//sanity check for when distance is > nearest
 		return 255;
