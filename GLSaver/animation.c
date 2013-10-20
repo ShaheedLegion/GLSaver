@@ -23,7 +23,8 @@ typedef struct _tag_star
     int x;
     int y;
     int z;
-    int type;
+    int tex_type;
+    int tex_idx;
     int id;
 } _star, * _lp_star;
 _lp_star _stars = NULL;
@@ -42,7 +43,7 @@ void SetupAnimation(int w, int h)
     gluPerspective(20, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0.0, 0.0, (GLdouble)(nearest), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(0.0, 0.0, (GLdouble)(nearest - 20), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     //camera xyz, the xyz to look at, and the up vector (+y is up)
     LoadTextures();
     _stars = (_lp_star)malloc(_num_stars * sizeof(_star));
@@ -79,11 +80,29 @@ void CheckStar(_lp_star star, int idx)
             star->y = (rand() % Height) - (Height / 2);
             star->z = (rand() % nearest);
 
-            star->type = -1;    //set to not have texture by default
+            star->tex_type = -1;    //set to not have texture by default
             star->id = -1;
+
             int idx = (rand() % GetTextureCount());
-            star->type = GetTextureType(idx);
+            star->tex_type = GetTextureType(idx);
             star->id = GetTextureID(idx);
+/*
+            int control = (rand() % 100);
+            if (control == 0)
+            {
+                int idx = (rand() % GetPlanetTextureCount());
+                star->tex_type = GetPlanetTextureType(idx);
+                star->id = GetPlanetTextureID(idx);
+                star->tex_idx = idx;
+                star->z = farthest;
+            }
+            else
+            {
+                int idx = (rand() % GetTextureCount());
+                star->tex_type = GetTextureType(idx);
+                star->id = GetTextureID(idx);
+            }
+*/
         }
     }
 /*
@@ -93,7 +112,7 @@ void CheckStar(_lp_star star, int idx)
             star->y = (rand() % Height) - (Height / 2);
             star->z = (rand() % nearest);
             int idx = (rand() % GetTextureCount());
-            star->type = GetTextureType(idx);
+            star->tex_type = GetTextureType(idx);
             star->id = GetTextureID(idx);
     }
 */
@@ -117,7 +136,7 @@ int CalculateColor(int distance)
 void DrawStar(_lp_star star)
 {
     float offset = 0.05;    //determines the size of the star
-    if (star->type == TYPE_NEB || star->type == TYPE_STAR)
+    if (star->tex_type == TYPE_NEB || star->tex_type == TYPE_STAR)
     {
         glBindTexture(GL_TEXTURE_2D, star->id);
         glBegin(GL_QUADS);
@@ -126,6 +145,17 @@ void DrawStar(_lp_star star)
         glTexCoord2f(1.0, 1.0); glVertex3f(star->x + offset, star->y + offset, star->z);
         glTexCoord2f(1.0, 0.0); glVertex3f(star->x + offset, star->y - offset, star->z);
         glEnd();
+    }
+}
+
+void DrawPlanet(_lp_star star)
+{
+    if (star->tex_type == TYPE_PLANET)
+    {
+        glTranslatef(star->x, star->y, star->z);
+        glBindTexture(GL_TEXTURE_2D, star->id);
+        gluQuadricTexture(GetQuadricPointer(star->tex_idx), GLU_TRUE);
+        gluSphere(GetQuadricPointer(star->tex_idx),4,20,20);
     }
 }
 
@@ -150,6 +180,13 @@ void Render(HDC * hDC) //increment and display
         _curr++;
     }
 
+    _curr = _stars;
+    for (i = 0; i < _num_stars; i++)
+    {
+        DrawPlanet(_curr);
+        _curr++;
+    }
+    glDisable(GL_TEXTURE_2D);
     //glFlush();
     SwapBuffers(*hDC);
 /*
