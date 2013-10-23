@@ -33,14 +33,18 @@ void CheckStar(_lp_star star, int idx);  //forward declaration
 
 void SetupAnimation(int w, int h)
 {
+    if (h < 1080)
+        _num_stars = 3600;
     Width = w / 10;
     Height = h / 6;
+
+    GLdouble aspect = ((double)w / (double)h) * 10.0;
 
     glShadeModel(GL_FLAT);
     glViewport(0, 0, (GLint) w, (GLint) h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(20, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
+    gluPerspective(aspect, (GLdouble)w/(GLdouble)h,(GLdouble)nearest, (GLdouble)farthest);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest - 20), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -83,10 +87,10 @@ void CheckStar(_lp_star star, int idx)
             star->tex_type = -1;    //set to not have texture by default
             star->id = -1;
 
-            int idx = (rand() % GetTextureCount());
-            star->tex_type = GetTextureType(idx);
-            star->id = GetTextureID(idx);
-/*
+ //           int idx = (rand() % GetTextureCount());
+ //           star->tex_type = GetTextureType(idx);
+ //           star->id = GetTextureID(idx);
+
             int control = (rand() % 100);
             if (control == 0)
             {
@@ -102,7 +106,7 @@ void CheckStar(_lp_star star, int idx)
                 star->tex_type = GetTextureType(idx);
                 star->id = GetTextureID(idx);
             }
-*/
+
         }
     }
 /*
@@ -155,7 +159,8 @@ void DrawPlanet(_lp_star star)
         glTranslatef(star->x, star->y, star->z);
         glBindTexture(GL_TEXTURE_2D, star->id);
         gluQuadricTexture(GetQuadricPointer(star->tex_idx), GLU_TRUE);
-        gluSphere(GetQuadricPointer(star->tex_idx),4,20,20);
+        gluSphere(GetQuadricPointer(star->tex_idx),18,32,32);
+        glTranslatef(0.0, 0.0, -(GLfloat)(star->z));
     }
 }
 

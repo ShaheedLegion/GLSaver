@@ -147,6 +147,9 @@ void LoadTextures()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
+    // Specify a global ambient
+    GLfloat globalAmbient[] = { 0.2, 0.2, 0.2, 1.0 };
+    glLightModelfv( GL_LIGHT_MODEL_AMBIENT, globalAmbient );
 
     LoadStarTexture("Textures/star-blue.raw", 256, 256);    //takes care of the texture binding
     LoadStarTexture("Textures/star-green.raw", 256, 256);    //takes care of the texture binding

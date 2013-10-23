@@ -66,3 +66,42 @@
 	<gl/gl.h>
 	<gl/glu.h>
 
+1382071590 source:c:\projects\github\glsaver\glsaver\main.c
+	<windows.h>
+	<scrnsave.h>
+	<gl/gl.h>
+	<gl/glu.h>
+	"animation.h"
+
+1382071589 c:\projects\github\glsaver\glsaver\animation.h
+	<Windows.h>
+
+1382180143 source:c:\projects\github\glsaver\glsaver\trigger.c
+	"trigger.h"
+
+1382071590 c:\projects\github\glsaver\glsaver\trigger.h
+
+1382417242 source:c:\projects\github\glsaver\glsaver\logger.c
+	"logger.h"
+	<stdio.h>
+
+1382417242 c:\projects\github\glsaver\glsaver\logger.h
+	<Windows.h>
+
+1382453723 source:c:\projects\github\glsaver\glsaver\texture.c
+	"texture.h"
+	<stdio.h>
+	"logger.h"
+
+1382417242 c:\projects\github\glsaver\glsaver\texture.h
+	<gl/gl.h>
+	<gl/glu.h>
+
+1382454090 source:c:\projects\github\glsaver\glsaver\animation.c
+	"animation.h"
+	<gl/gl.h>
+	<gl/glu.h>
+	"logger.h"
+	"trigger.h"
+	"texture.h"
+
