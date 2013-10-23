@@ -87,10 +87,10 @@ void CheckStar(_lp_star star, int idx)
             star->tex_type = -1;    //set to not have texture by default
             star->id = -1;
 
- //           int idx = (rand() % GetTextureCount());
- //           star->tex_type = GetTextureType(idx);
- //           star->id = GetTextureID(idx);
-
+            int idx = (rand() % GetTextureCount());
+            star->tex_type = GetTextureType(idx);
+            star->id = GetTextureID(idx);
+/*
             int control = (rand() % 100);
             if (control == 0)
             {
@@ -106,7 +106,7 @@ void CheckStar(_lp_star star, int idx)
                 star->tex_type = GetTextureType(idx);
                 star->id = GetTextureID(idx);
             }
-
+*/
         }
     }
 /*

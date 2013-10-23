@@ -133,6 +133,25 @@ int LoadPlanetTexture(char * tex, int w, int h)
     return -1;
 }
 
+void ExtractPath(char * output, char * input, int size)
+{
+    BOOL bFound = FALSE;
+    int x;
+    int foundIdx = 0;
+    LogI(input, foundIdx);
+    for (x = 0; x < size; x++)
+    {
+        if (input[x] == '\\')
+        {
+            foundIdx = x;
+            LogI(input, foundIdx);
+        }
+    }
+    //at end of loop, foundIdx will point to last occurence of search string.
+    if (foundIdx != 0)
+        strncpy(output, input, foundIdx);
+}
+
 void LoadTextures()
 {
     memset(_textures, 0, numtex * sizeof(GLuint));
@@ -151,6 +170,23 @@ void LoadTextures()
     GLfloat globalAmbient[] = { 0.2, 0.2, 0.2, 1.0 };
     glLightModelfv( GL_LIGHT_MODEL_AMBIENT, globalAmbient );
 
+    //Get path to file here to make sure we run correctly when triggered by Windows.
+    TCHAR lpFileName[512];
+    char fullPath[1024];
+    DWORD nStrLen = GetModuleFileName(NULL,lpFileName,512);
+
+    if (nStrLen > 0)
+    {
+        char SpareBuffer[512];
+        ExtractPath(SpareBuffer, lpFileName, nStrLen);
+        sprintf(fullPath, "%s\\%s", SpareBuffer, "Textures\\star-blue.raw");
+    }
+    else
+    {
+        sprintf(fullPath, "\\%s", "Textures\\star-blue.raw");
+    }
+
+    LogI(fullPath, GetLastError());
     LoadStarTexture("Textures/star-blue.raw", 256, 256);    //takes care of the texture binding
     LoadStarTexture("Textures/star-green.raw", 256, 256);    //takes care of the texture binding
     LoadStarTexture("Textures/star-yellow.raw", 256, 256);    //takes care of the texture binding
