@@ -138,18 +138,22 @@ void ExtractPath(char * output, char * input, int size)
     BOOL bFound = FALSE;
     int x;
     int foundIdx = 0;
-    LogI(input, foundIdx);
+    //LogI(input, foundIdx);
     for (x = 0; x < size; x++)
     {
         if (input[x] == '\\')
         {
             foundIdx = x;
-            LogI(input, foundIdx);
+            //LogI(input, foundIdx);
         }
     }
     //at end of loop, foundIdx will point to last occurence of search string.
     if (foundIdx != 0)
         strncpy(output, input, foundIdx);
+
+    for (x =0; x < size; x++)
+        if (output[x] == '\\')
+            output[x] = '/';
 }
 
 void LoadTextures()
@@ -174,27 +178,27 @@ void LoadTextures()
     TCHAR lpFileName[512];
     char fullPath[1024];
     DWORD nStrLen = GetModuleFileName(NULL,lpFileName,512);
+    //LogI(lpFileName, 0);
 
-    if (nStrLen > 0)
-    {
-        char SpareBuffer[512];
-        ExtractPath(SpareBuffer, lpFileName, nStrLen);
-        sprintf(fullPath, "%s\\%s", SpareBuffer, "Textures\\star-blue.raw");
-    }
-    else
-    {
-        sprintf(fullPath, "\\%s", "Textures\\star-blue.raw");
-    }
 
-    LogI(fullPath, GetLastError());
-    LoadStarTexture("Textures/star-blue.raw", 256, 256);    //takes care of the texture binding
-    LoadStarTexture("Textures/star-green.raw", 256, 256);    //takes care of the texture binding
-    LoadStarTexture("Textures/star-yellow.raw", 256, 256);    //takes care of the texture binding
+    char SpareBuffer[512];
+    ExtractPath(SpareBuffer, lpFileName, nStrLen);
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/star-blue.raw");
+    //LogI(fullPath, GetLastError());
+
+    LoadStarTexture(fullPath, 256, 256);    //takes care of the texture binding
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/star-green.raw");
+    LoadStarTexture(fullPath, 256, 256);    //takes care of the texture binding
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/star-yellow.raw");
+    LoadStarTexture(fullPath, 256, 256);    //takes care of the texture binding
 
     //the following textures require spherical mapping.
-    LoadPlanetTexture("Textures/earth.raw", 1024, 512);    //takes care of the texture binding
-    LoadPlanetTexture("Textures/jupiter.raw", 1024, 512);    //takes care of the texture binding
-    LoadPlanetTexture("Textures/mars.raw", 1024, 512);    //takes care of the texture binding
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/earth.raw");
+    LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/jupiter.raw");
+    LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/mars.raw");
+    LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
     //LoadPlanetTexture("Textures/saturn.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
     //LoadPlanetTexture("Textures/neptune.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
 }
