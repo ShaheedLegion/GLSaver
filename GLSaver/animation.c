@@ -63,7 +63,7 @@ void SetupAnimation(int w, int h)
 
     _spin_triggers[0] = SetTrigger(TRIG_MEDIUM, 465);    //delta is in frames
     _spin_triggers[1] = SetTrigger(TRIG_SLOW, 800);    //delta is in frames
-    _spin_triggers[2] = SetTrigger(TRIG_FAST, 1265);    //delta is in frames
+    _spin_triggers[2] = SetTrigger(TRIG_FASTEST, 1265);    //delta is in frames
 }
 
 //clean up any objects created by this "class"
@@ -171,8 +171,7 @@ void Render(HDC * hDC) //increment and display
     glPushMatrix();
     glRotated(UpdateTrigger(_spin_triggers[0]), 1.0, 0.0, 0.0);
     glRotated(UpdateTrigger(_spin_triggers[1]), 0.0, 1.0, 0.0);
-    double rotationz = UpdateTrigger(_spin_triggers[2]);
-    glRotated(rotationz, 0.0, 0.0, 1.0);
+    glRotated(UpdateTrigger(_spin_triggers[2]), 0.0, 0.0, 1.0);
     glEnable(GL_TEXTURE_2D);
 
     int i;

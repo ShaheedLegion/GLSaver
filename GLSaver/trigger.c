@@ -45,8 +45,11 @@ void UpdateTriggerValue(_lp_trigger _trig)
 			trigdelta = 0.009;
 			break;
 		case TRIG_FAST:
-			trigdelta = 0.06;
+			trigdelta = 0.09;
 			break;
+        case TRIG_FASTEST:
+            trigdelta = 0.2;
+            break;
 		default:
 			trigdelta = 0.05;
 			break;
