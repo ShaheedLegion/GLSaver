@@ -5,18 +5,21 @@
 #include <gl/glu.h>
 
 /*This file is similar to the trigger class which manages it's own IDs*/
-enum {TYPE_NEB = 0, TYPE_STAR, TYPE_PLANET};
+enum {TYPE_RING = 1, TYPE_STAR, TYPE_PLANET};
 
 void LoadTextures();
 
 int GetTextureCount();
 int GetPlanetTextureCount();
+int GetRingTextureCount();
 
 int GetTextureID(int idx);
 int GetPlanetTextureID(int idx);
+int GetRingTextureID(int idx);
 
 int GetTextureType(int idx);
 int GetPlanetTextureType(int idx);
+int GetRingTextureType(int idx);
 
 int GetTextureIDFromType(int type);
 GLUquadric * GetQuadricPointer(int idx);

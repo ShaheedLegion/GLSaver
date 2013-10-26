@@ -1,17 +1,22 @@
 #include "texture.h"
 #include <stdio.h>
 #include "logger.h"
-#define numtex 3
+#define numstartex 4
+#define numplanettex 3
+#define numringtex 3
 //totally arbitrary number.
 
-GLuint _textures[numtex];
-GLuint _planets[numtex];
-GLUquadric *_planetquads[numtex];
+GLuint _star_textures[numstartex];
+GLuint _planet_textures[numplanettex];
+GLuint _ring_textures[numringtex];
+GLUquadric *_planetquads[numplanettex];
 
-int _types[numtex];
-int _planet_types[numtex];
+int _types[numstartex];
+int _planet_types[numplanettex];
+int _ring_types[numringtex];
 int _curr_tex = 0;
 int _curr_planet_tex = 0;
+int _curr_ring_tex = 0;
 
 typedef struct tagtex
 {
@@ -66,17 +71,20 @@ void SaveTexture(_lp_texture tex, int idx, int bpp)
 
 int LoadStarTexture(char * tex, int w, int h)
 {
-    if (_curr_tex < numtex)
+    if (_curr_tex < numstartex)
     {
         _lp_texture _text = LoadTextureFile(tex, w, h, 32);    //load the texture here...
         if (_text == 0)
+        {
+            LogI("Could not load star texture ", 0);
+            LogI(tex, 1);
             return -1;
+        }
 
         // set the texture type
         _types[_curr_tex] = TYPE_STAR;
         // Generate and Bind The Texture
-        glGenTextures(1, &_textures[_curr_tex]);
-        glBindTexture(GL_TEXTURE_2D, _textures[_curr_tex]);
+        glBindTexture(GL_TEXTURE_2D, _star_textures[_curr_tex]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -99,11 +107,15 @@ int LoadStarTexture(char * tex, int w, int h)
 
 int LoadPlanetTexture(char * tex, int w, int h)
 {
-    if (_curr_planet_tex < numtex)
+    if (_curr_planet_tex < numplanettex)
     {
         _lp_texture _text = LoadTextureFile(tex, w, h, 24);    //load the texture here...
         if (_text == 0)
+        {
+            LogI("Could not load planet texture ", 0);
+            LogI(tex, 1);
             return -1;
+        }
 
         // set the texture type
         _planet_types[_curr_planet_tex] = TYPE_PLANET;
@@ -112,8 +124,7 @@ int LoadPlanetTexture(char * tex, int w, int h)
         gluQuadricNormals(_planetquads[_curr_planet_tex], GLU_SMOOTH);
 
         // Generate and Bind The Texture
-        glGenTextures(1, &_planets[_curr_planet_tex]);
-        glBindTexture(GL_TEXTURE_2D, _planets[_curr_planet_tex]);
+        glBindTexture(GL_TEXTURE_2D, _planet_textures[_curr_planet_tex]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -123,6 +134,44 @@ int LoadPlanetTexture(char * tex, int w, int h)
         int _retval = _curr_planet_tex;
         //SaveTexture(_text, _retval, 24);
         _curr_planet_tex++;
+
+        free(_text->_data); //clean up any ram we used for the texture data
+        _text->_data = 0;
+        free(_text);    //clean up any ram we used for the texture
+
+        return _retval;
+    }
+    return -1;
+}
+
+int LoadRingTexture(char * tex, int w, int h)
+{
+    if (_curr_ring_tex < numringtex)
+    {
+        _lp_texture _text = LoadTextureFile(tex, w, h, 32);    //load the texture here...
+        if (_text == 0)
+        {
+            LogI("Could not load ring texture ", 0);
+            LogI(tex, 1);
+            return -1;
+        }
+
+        // set the texture type
+        _ring_types[_curr_ring_tex] = TYPE_RING;
+        // Generate and Bind The Texture
+        glBindTexture(GL_TEXTURE_2D, _ring_textures[_curr_ring_tex]);
+        //LogI("Binding Ring Tex idx:", _curr_ring_tex);
+        //LogI(tex, _ring_textures[_curr_ring_tex]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                     _text->_w, _text->_h,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _text->_data);
+        int _retval = _curr_ring_tex;
+        //SaveTexture(_text, _retval, 32);
+        _curr_ring_tex++;
 
         free(_text->_data); //clean up any ram we used for the texture data
         _text->_data = 0;
@@ -160,12 +209,29 @@ void ExtractPath(char * output, char * input, int size)
 
 void LoadTextures()
 {
-    memset(_textures, 0, numtex * sizeof(GLuint));
-    memset(_planets, 0, numtex * sizeof(GLuint));
-    memset(_types, 0, numtex * sizeof(int));
-    memset(_planet_types, 0, numtex * sizeof(int));
-    memset(_planetquads, 0, numtex * sizeof(GLUquadric*));
+    memset(_star_textures, 0, numstartex * sizeof(GLuint));
+    memset(_planet_textures, 0, numplanettex * sizeof(GLuint));
+    memset(_ring_textures, 0, numringtex * sizeof(GLuint));
 
+    memset(_types, 0, numstartex * sizeof(int));
+    memset(_planet_types, 0, numplanettex * sizeof(int));
+    memset(_ring_types, 0, numringtex * sizeof(int));
+
+    memset(_planetquads, 0, numstartex * sizeof(GLUquadric*));
+
+    //generate texture names beforehand.
+    glGenTextures(numringtex, _ring_textures);
+    glGenTextures(numplanettex, _planet_textures);
+    glGenTextures(numstartex, _star_textures);
+/*
+    int i;
+    for (i = 0; i < numringtex; i++)
+        LogI("Ring Texture ID:", _ring_textures[i]);
+    for (i = 0; i < numplanettex; i++)
+        LogI("Planet Texture ID:", _planet_textures[i]);
+    for (i = 0; i < numstartex; i++)
+        LogI("Star Texture ID:", _star_textures[i]);
+*/
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glDisable(GL_DEPTH_TEST);
@@ -198,6 +264,17 @@ void LoadTextures()
     LoadStarTexture(fullPath, 256, 256);    //takes care of the texture binding
     //LogI(fullPath, GetLastError());
 
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-blue.raw");
+    LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //LogI(fullPath, GetLastError());
+
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-red.raw");
+    LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //LogI(fullPath, GetLastError());
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-green.raw");
+    LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //LogI(fullPath, GetLastError());
+/*
     //the following textures require spherical mapping.
     sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/earth.raw");
     LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
@@ -207,6 +284,10 @@ void LoadTextures()
     //LogI(fullPath, GetLastError());
     sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/mars.raw");
     LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
+
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/earth.raw");
+    LoadPlanetTexture(fullPath, 1024, 512);    //takes care of the texture binding
+*/
     //LogI(fullPath, GetLastError());
     //LoadPlanetTexture("Textures/saturn.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
     //LoadPlanetTexture("Textures/neptune.raw", 720, 360, TYPE_PLANET);    //takes care of the texture binding
@@ -214,25 +295,34 @@ void LoadTextures()
 
 int GetTextureID(int idx)
 {
-    if (idx >= 0 && idx < numtex)
+    if (idx >= 0 && idx < numstartex)
     {
-        return _textures[idx];
+        return _star_textures[idx];
     }
     return -1;
 }
 
 int GetPlanetTextureID(int idx)
 {
-    if (idx >= 0 && idx < numtex)
+    if (idx >= 0 && idx < numplanettex)
     {
-        return _planets[idx];
+        return _planet_textures[idx];
+    }
+    return -1;
+}
+
+int GetRingTextureID(int idx)
+{
+    if (idx >= 0 && idx < numringtex)
+    {
+        return _ring_textures[idx];
     }
     return -1;
 }
 
 int GetTextureType(int idx)
 {
-    if (idx >= 0 && idx < numtex)
+    if (idx >= 0 && idx < numstartex)
     {
         return _types[idx];
     }
@@ -241,16 +331,25 @@ int GetTextureType(int idx)
 
 int GetPlanetTextureType(int idx)
 {
-    if (idx >= 0 && idx < numtex)
+    if (idx >= 0 && idx < numplanettex)
     {
         return _planet_types[idx];
     }
     return -1;
 }
 
+int GetRingTextureType(int idx)
+{
+    if (idx >= 0 && idx < numringtex)
+    {
+        return _ring_types[idx];
+    }
+    return -1;
+}
+
 GLUquadric * GetQuadricPointer(int idx)
 {
-    if (idx >= 0 && idx < numtex)
+    if (idx >= 0 && idx < numstartex)
     {
         return _planetquads[idx];
     }
@@ -259,12 +358,17 @@ GLUquadric * GetQuadricPointer(int idx)
 
 int GetTextureCount()
 {
-    return numtex;
+    return numstartex;
 }
 
 int GetPlanetTextureCount()
 {
-    return numtex;
+    return numplanettex;
+}
+
+int GetRingTextureCount()
+{
+    return numringtex;
 }
 
 /*

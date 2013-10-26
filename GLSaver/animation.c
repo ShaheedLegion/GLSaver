@@ -7,6 +7,7 @@
 
 //This file contains "private" declarations used internally by this file.
 int _num_stars = 7200;   //how many stars to display
+int _num_rings = 100;   //how many rings to display
 int nearest = 400;
 int farthest = 1;
 int Width = 0;
@@ -18,7 +19,7 @@ int _spin_triggers[3];
 We start with the 'simple case' of a traditional star which
 only contains location data.
 */
-typedef struct _tag_star
+typedef struct _tag_vertex
 {
     int x;
     int y;
@@ -26,10 +27,13 @@ typedef struct _tag_star
     int tex_type;
     int tex_idx;
     int id;
-} _star, * _lp_star;
-_lp_star _stars = NULL;
+} _vertex, * _lp_vertex;
 
-void CheckStar(_lp_star star, int idx);  //forward declaration
+_lp_vertex _stars = NULL;
+_lp_vertex _rings = NULL;
+
+void CheckStar(_lp_vertex star, int idx);  //forward declaration
+void CheckRing(_lp_vertex ring, int idx);  //forward declaration
 
 void SetupAnimation(int w, int h)
 {
@@ -49,15 +53,27 @@ void SetupAnimation(int w, int h)
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest - 20), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     //camera xyz, the xyz to look at, and the up vector (+y is up)
+    _stars = (_lp_vertex)malloc(_num_stars * sizeof(_vertex));
+    _rings = (_lp_vertex)malloc(_num_rings * sizeof(_vertex));
+
     LoadTextures();
-    _stars = (_lp_star)malloc(_num_stars * sizeof(_star));
+
+
     int i;
-    _lp_star _curr = _stars;
+    _lp_vertex _curr = _stars;
     srand((unsigned)26351024);
     for (i = 0; i < _num_stars; i++)
     {
         _curr->z = nearest + 1;
-        CheckStar(_curr, i/* + (_num_stars / 2)*/);
+        CheckStar(_curr, i);
+        _curr++;
+    }
+
+    _curr = _rings;
+    for (i = 0; i < _num_rings; i++)
+    {
+        _curr->z = nearest + 1;
+        CheckRing(_curr, i);
         _curr++;
     }
 
@@ -70,10 +86,11 @@ void SetupAnimation(int w, int h)
 void CleanupAnimation()
 {
     free(_stars);
+    free(_rings);
     CleanupTriggers();
 }
 
-void CheckStar(_lp_star star, int idx)
+void CheckStar(_lp_vertex star, int idx)
 {
     if (idx < _num_stars)
     {
@@ -87,39 +104,40 @@ void CheckStar(_lp_star star, int idx)
             star->tex_type = -1;    //set to not have texture by default
             star->id = -1;
 
-            int idx = (rand() % GetTextureCount());
-            star->tex_type = GetTextureType(idx);
-            star->id = GetTextureID(idx);
-/*
-            int control = (rand() % 100);
-            if (control == 0)
-            {
-                int idx = (rand() % GetPlanetTextureCount());
-                star->tex_type = GetPlanetTextureType(idx);
-                star->id = GetPlanetTextureID(idx);
-                star->tex_idx = idx;
-                star->z = farthest;
-            }
-            else
-            {
-                int idx = (rand() % GetTextureCount());
-                star->tex_type = GetTextureType(idx);
-                star->id = GetTextureID(idx);
-            }
-*/
+            int sidx = (rand() % GetTextureCount());
+            if (GetTextureCount() == 1)
+                sidx = 0;
+            star->tex_type = GetTextureType(sidx);
+            star->id = GetTextureID(sidx);
         }
     }
-/*
-    else if (idx > _num_stars)
+}
+
+void CheckRing(_lp_vertex ring, int idx)
+{
+    if (idx < _num_rings)
     {
-            star->x = (rand() % Width) - (Width / 2);
-            star->y = (rand() % Height) - (Height / 2);
-            star->z = (rand() % nearest);
-            int idx = (rand() % GetTextureCount());
-            star->tex_type = GetTextureType(idx);
-            star->id = GetTextureID(idx);
+        ring->z++;
+        if (ring->z > nearest)
+        {
+            ring->x = (rand() % Width) - (Width / 2);
+            ring->y = (rand() % Height) - (Height / 2);
+            ring->z = (rand() % nearest);
+
+            ring->tex_type = -1;    //set to not have texture by default
+            ring->id = -1;
+
+            int ridx = (rand() % GetRingTextureCount());
+            if (GetRingTextureCount() == 1)
+                ridx = 0;
+
+            //LogI("ring tex idx:", ridx);
+            ring->tex_type = GetRingTextureType(ridx);
+            //LogI("ring tex type:", ring->tex_type);
+            ring->id = GetRingTextureID(ridx);
+            //LogI("ring tex id:", ring->id);
+        }
     }
-*/
 }
 
 int CalculateColor(int distance)
@@ -137,10 +155,10 @@ int CalculateColor(int distance)
 	return value;
 }
 
-void DrawStar(_lp_star star)
+void DrawStar(_lp_vertex star)
 {
     float offset = 0.05;    //determines the size of the star
-    if (star->tex_type == TYPE_NEB || star->tex_type == TYPE_STAR)
+    if (star->tex_type == TYPE_STAR)
     {
         glBindTexture(GL_TEXTURE_2D, star->id);
         glBegin(GL_QUADS);
@@ -152,7 +170,7 @@ void DrawStar(_lp_star star)
     }
 }
 
-void DrawPlanet(_lp_star star)
+void DrawPlanet(_lp_vertex star)
 {
     if (star->tex_type == TYPE_PLANET)
     {
@@ -161,6 +179,21 @@ void DrawPlanet(_lp_star star)
         gluQuadricTexture(GetQuadricPointer(star->tex_idx), GLU_TRUE);
         gluSphere(GetQuadricPointer(star->tex_idx),18,32,32);
         glTranslatef(0.0, 0.0, -(GLfloat)(star->z));
+    }
+}
+
+void DrawRing(_lp_vertex ring)
+{
+    float offset = 0.29;    //determines the size of the ring
+    if (ring->tex_type == TYPE_RING)
+    {
+        glBindTexture(GL_TEXTURE_2D, ring->id);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex3f(ring->x - offset, ring->y - offset, ring->z);
+        glTexCoord2f(0.0, 1.0); glVertex3f(ring->x - offset, ring->y + offset, ring->z);
+        glTexCoord2f(1.0, 1.0); glVertex3f(ring->x + offset, ring->y + offset, ring->z);
+        glTexCoord2f(1.0, 0.0); glVertex3f(ring->x + offset, ring->y - offset, ring->z);
+        glEnd();
     }
 }
 
@@ -175,7 +208,7 @@ void Render(HDC * hDC) //increment and display
     glEnable(GL_TEXTURE_2D);
 
     int i;
-    _lp_star _curr = _stars;
+    _lp_vertex _curr = _stars;
 
     for (i = 0; i < _num_stars; i++)
     {
@@ -183,25 +216,23 @@ void Render(HDC * hDC) //increment and display
         CheckStar(_curr, i);
         _curr++;
     }
-
+/*
     _curr = _stars;
     for (i = 0; i < _num_stars; i++)
     {
         DrawPlanet(_curr);
         _curr++;
     }
-    glDisable(GL_TEXTURE_2D);
-    //glFlush();
-    SwapBuffers(*hDC);
-/*
-    BeginLog();
-    for (i = 0; i < GetTextureCount(); i++)
-    {
-        LogScreenI(*hDC, "Texture Type:", GetTextureType(i));
-        LogScreenI(*hDC, "Texture ID:", GetTextureID(i));
-    }
-    EndLog();
 */
-    //LogScreenD(*hDC, "Current Rotation:", rotationz);
+    _curr = _rings;
+    for (i = 0; i < _num_rings; i++)
+    {
+        DrawRing(_curr);
+        CheckRing(_curr, i);
+        _curr++;
+    }
+
+    glDisable(GL_TEXTURE_2D);
+    SwapBuffers(*hDC);
     glPopMatrix();
 }

@@ -76,10 +76,10 @@
 1382071589 c:\projects\github\glsaver\glsaver\animation.h
 	<Windows.h>
 
-1382593857 source:c:\projects\github\glsaver\glsaver\trigger.c
+1382593969 source:c:\projects\github\glsaver\glsaver\trigger.c
 	"trigger.h"
 
-1382071590 c:\projects\github\glsaver\glsaver\trigger.h
+1382593969 c:\projects\github\glsaver\glsaver\trigger.h
 
 1382417242 source:c:\projects\github\glsaver\glsaver\logger.c
 	"logger.h"
@@ -88,7 +88,7 @@
 1382417242 c:\projects\github\glsaver\glsaver\logger.h
 	<Windows.h>
 
-1382593896 source:c:\projects\github\glsaver\glsaver\texture.c
+1382781191 source:c:\projects\github\glsaver\glsaver\texture.c
 	"texture.h"
 	<stdio.h>
 	"logger.h"
@@ -98,11 +98,11 @@
 	<stdio.h>
 	<math.h>
 
-1382417242 c:\projects\github\glsaver\glsaver\texture.h
+1382778950 c:\projects\github\glsaver\glsaver\texture.h
 	<gl/gl.h>
 	<gl/glu.h>
 
-1382593857 source:c:\projects\github\glsaver\glsaver\animation.c
+1382780969 source:c:\projects\github\glsaver\glsaver\animation.c
 	"animation.h"
 	<gl/gl.h>
 	<gl/glu.h>
