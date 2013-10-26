@@ -234,13 +234,13 @@ void LoadTextures()
 */
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDisable(GL_DEPTH_TEST);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_NORMALIZE);
-    glEnable(GL_COLOR_MATERIAL);
+    glDisable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_NORMALIZE);
+    //glEnable(GL_COLOR_MATERIAL);
     // Specify a global ambient
-    GLfloat globalAmbient[] = { 0.2, 0.2, 0.2, 1.0 };
-    glLightModelfv( GL_LIGHT_MODEL_AMBIENT, globalAmbient );
+    //GLfloat globalAmbient[] = { 0.2, 0.2, 0.2, 1.0 };
+    //glLightModelfv( GL_LIGHT_MODEL_AMBIENT, globalAmbient );
 
     //Get path to file here to make sure we run correctly when triggered by Windows.
     TCHAR lpFileName[512];

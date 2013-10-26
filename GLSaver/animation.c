@@ -7,7 +7,7 @@
 
 //This file contains "private" declarations used internally by this file.
 int _num_stars = 7200;   //how many stars to display
-int _num_rings = 100;   //how many rings to display
+int _num_rings = 25;//100;   //how many rings to display
 int nearest = 400;
 int farthest = 1;
 int Width = 0;
@@ -120,9 +120,11 @@ void CheckRing(_lp_vertex ring, int idx)
         ring->z++;
         if (ring->z > nearest)
         {
-            ring->x = (rand() % Width) - (Width / 2);
-            ring->y = (rand() % Height) - (Height / 2);
-            ring->z = (rand() % nearest);
+            int w = Width / 5;
+            int h = Height / 10;
+            ring->x = 0;//(rand() % w) - (w / 2);
+            ring->y = 0;//(rand() % h) - (h / 2);
+            ring->z = (nearest / _num_rings) * idx;//(rand() % nearest);
 
             ring->tex_type = -1;    //set to not have texture by default
             ring->id = -1;
@@ -184,7 +186,7 @@ void DrawPlanet(_lp_vertex star)
 
 void DrawRing(_lp_vertex ring)
 {
-    float offset = 0.29;    //determines the size of the ring
+    float offset = 2.29;    //determines the size of the ring
     if (ring->tex_type == TYPE_RING)
     {
         glBindTexture(GL_TEXTURE_2D, ring->id);
