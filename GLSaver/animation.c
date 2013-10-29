@@ -8,7 +8,10 @@
 //This file contains "private" declarations used internally by this file.
 int _num_stars = 5000;   //how many stars to display
 int _num_rings = 8;//25;//100;   //how many rings to display
+int _num_neb = 6;   //all of these will form part of the same nebula
+
 int _display_rings = 0;
+int _display_nebulae = 0;
 int nearest = 400;
 int farthest = 1;
 int Width = 0;
@@ -34,9 +37,11 @@ typedef struct _tag_vertex
 
 _lp_vertex _stars = NULL;
 _lp_vertex _rings = NULL;
+_lp_vertex _nebulae = NULL;
 
 void CheckStar(_lp_vertex star, int idx);  //forward declaration
 void CheckRing(_lp_vertex ring, int idx, int initial);  //forward declaration
+void CheckNebula(_lp_vertex star, int idx);  //forward declaration
 void SortRings(int print);
 
 void SetupAnimation(int w, int h)
@@ -45,7 +50,9 @@ void SetupAnimation(int w, int h)
     {
         _num_stars = 2500;
         _display_rings = 1;
+        _display_nebulae = 1;
     }
+
     Width = w / 10;
     Height = h / 6;
 
@@ -60,10 +67,10 @@ void SetupAnimation(int w, int h)
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest - 20), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glFogi(GL_FOG_MODE, GL_LINEAR);        // Fog Mode
-    GLfloat fogColor[4]= {0.9f, 0.9f, 0.9f, 0.01f};      // Fog Color
+    GLfloat fogColor[4]= {0.9f, 0.9f, 0.9f, 1.0f};      // Fog Color
     glFogfv(GL_FOG_COLOR, fogColor);            // Set Fog Color
-    glFogf(GL_FOG_DENSITY, 0.0091f);              // How Dense Will The Fog Be
-    glHint(GL_FOG_HINT, GL_DONT_CARE);          // Fog Hint Value
+    glFogf(GL_FOG_DENSITY, 1.0f);              // How Dense Will The Fog Be
+    glHint(GL_FOG_HINT, GL_FASTEST);          // Fog Hint Value
     glFogf(GL_FOG_END, nearest);             // Fog Start Depth
     glFogf(GL_FOG_START, farthest);               // Fog End Depth
     glEnable(GL_FOG);                   // Enables GL_FOG
@@ -71,8 +78,10 @@ void SetupAnimation(int w, int h)
     //camera xyz, the xyz to look at, and the up vector (+y is up)
     _stars = (_lp_vertex)malloc(_num_stars * sizeof(_vertex));
     _rings = (_lp_vertex)malloc(_num_rings * sizeof(_vertex));
-    _srings = (int)malloc(_num_rings * sizeof(int));
-    _sringidx = (int)malloc(_num_rings * sizeof(int));
+    _nebulae = (_lp_vertex)malloc(_num_neb * sizeof(_vertex));
+
+    _srings = (int*)malloc(_num_rings * sizeof(int));
+    _sringidx = (int*)malloc(_num_rings * sizeof(int));
 
     LoadTextures();
 
@@ -95,6 +104,13 @@ void SetupAnimation(int w, int h)
         _curr++;
     }
 
+    _curr = _nebulae;
+    for (i = 0; i < _num_neb; i++)
+    {
+        _curr->z = nearest + 1;
+        CheckNebula(_curr, i);
+        _curr++;
+    }
     SortRings(0);
 
     _spin_triggers[0] = SetTrigger(TRIG_SLOWEST, 165);    //delta is in frames
@@ -107,6 +123,7 @@ void CleanupAnimation()
 {
     free(_stars);
     free(_rings);
+    free(_nebulae);
     free(_srings);
     free(_sringidx);
     CleanupTriggers();
@@ -163,6 +180,29 @@ void CheckRing(_lp_vertex ring, int idx, int initial)
             //LogI("ring tex type:", ring->tex_type);
             ring->id = GetRingTextureID(ridx);
             //LogI("ring tex id:", ring->id);
+        }
+    }
+}
+
+void CheckNebula(_lp_vertex neb, int idx)
+{
+    if (idx < _num_neb)
+    {
+        neb->z++;
+        if (neb->z > nearest)
+        {//change this logic to form clusters.
+            neb->x = (rand() % Width) - (Width / 2);
+            neb->y = (rand() % Height) - (Height / 2);
+            neb->z = (rand() % nearest);
+
+            neb->tex_type = -1;    //set to not have texture by default
+            neb->id = -1;
+
+            int sidx = (rand() % GetNebulaTextureCount());
+            if (GetNebulaTextureCount() == 1)
+                sidx = 0;
+            neb->tex_type = GetNebulaTextureType(sidx);
+            neb->id = GetNebulaTextureID(sidx);
         }
     }
 }
@@ -268,6 +308,21 @@ void DrawRing(int i)
     }
 }
 
+void DrawNebula(_lp_vertex neb)
+{
+    float offset = 4.9;    //determines the size of the nebula
+    if (neb->tex_type == TYPE_NEBULA)
+    {
+        glBindTexture(GL_TEXTURE_2D, neb->id);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex3f(neb->x - offset, neb->y - offset, neb->z);
+        glTexCoord2f(0.0, 1.0); glVertex3f(neb->x - offset, neb->y + offset, neb->z);
+        glTexCoord2f(1.0, 1.0); glVertex3f(neb->x + offset, neb->y + offset, neb->z);
+        glTexCoord2f(1.0, 0.0); glVertex3f(neb->x + offset, neb->y - offset, neb->z);
+        glEnd();
+    }
+}
+
 void Render(HDC * hDC) //increment and display
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -279,7 +334,21 @@ void Render(HDC * hDC) //increment and display
     glEnable(GL_TEXTURE_2D);
 
     int i;
-    _lp_vertex _curr = _stars;
+    _lp_vertex _curr = 0;
+
+    if (_display_nebulae)
+    {
+        _curr = _nebulae;
+
+        for (i = 0; i < _num_neb; i++)
+        {
+            DrawNebula(_curr);
+            CheckNebula(_curr, i);
+            _curr++;
+        }
+    }
+
+    _curr = _stars;
 
     for (i = 0; i < _num_stars; i++)
     {
@@ -307,6 +376,7 @@ void Render(HDC * hDC) //increment and display
             _curr++;
         }
     }
+
     glDisable(GL_TEXTURE_2D);
     SwapBuffers(*hDC);
     glPopMatrix();

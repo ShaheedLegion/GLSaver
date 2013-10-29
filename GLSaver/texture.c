@@ -4,19 +4,23 @@
 #define numstartex 4
 #define numplanettex 3
 #define numringtex 3
+#define numnebtex 2
 //totally arbitrary number.
 
 GLuint _star_textures[numstartex];
 GLuint _planet_textures[numplanettex];
 GLuint _ring_textures[numringtex];
+GLuint _neb_textures[numnebtex];
 GLUquadric *_planetquads[numplanettex];
 
 int _types[numstartex];
 int _planet_types[numplanettex];
 int _ring_types[numringtex];
+int _neb_types[numnebtex];
 int _curr_tex = 0;
 int _curr_planet_tex = 0;
 int _curr_ring_tex = 0;
+int _curr_neb_tex = 0;
 
 typedef struct tagtex
 {
@@ -46,7 +50,7 @@ _lp_texture LoadTextureFile(char * path, int w, int h, int bpp)
     //LogI("Texture h:", _tex->_h);
     //LogI("Data Size:", dataSize);
     _tex->_data = (unsigned char *)malloc(dataSize);
-    size_t read = fread(_tex->_data, 1, dataSize, _f);
+    fread(_tex->_data, 1, dataSize, _f);
     //LogI("Data Read:", read);
     fclose(_f);
     return _tex;
@@ -95,6 +99,42 @@ int LoadStarTexture(char * tex, int w, int h)
         int _retval = _curr_tex;
         //SaveTexture(_text, _retval);
         _curr_tex++;
+
+        free(_text->_data); //clean up any ram we used for the texture data
+        _text->_data = 0;
+        free(_text);    //clean up any ram we used for the texture
+
+        return _retval;
+    }
+    return -1;
+}
+
+int LoadNebulaTexture(char * tex, int w, int h)
+{
+    if (_curr_neb_tex < numnebtex)
+    {
+        _lp_texture _text = LoadTextureFile(tex, w, h, 32);    //load the texture here...
+        if (_text == 0)
+        {
+            LogI("Could not load nebula texture ", 0);
+            LogI(tex, 1);
+            return -1;
+        }
+
+        // set the texture type
+        _neb_types[_curr_neb_tex] = TYPE_NEBULA;
+        // Generate and Bind The Texture
+        glBindTexture(GL_TEXTURE_2D, _neb_textures[_curr_neb_tex]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                     _text->_w, _text->_h,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _text->_data);
+        int _retval = _curr_neb_tex;
+        //SaveTexture(_text, _retval);
+        _curr_neb_tex++;
 
         free(_text->_data); //clean up any ram we used for the texture data
         _text->_data = 0;
@@ -184,7 +224,6 @@ int LoadRingTexture(char * tex, int w, int h)
 
 void ExtractPath(char * output, char * input, int size)
 {
-    BOOL bFound = FALSE;
     int x;
     int foundIdx = 0;
     //LogI(input, foundIdx);
@@ -274,6 +313,14 @@ void LoadTextures()
     sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-green.raw");
     LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
     //LogI(fullPath, GetLastError());
+
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-light.raw");
+    LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //LogI(fullPath, GetLastError());
+
+    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-dark.raw");
+    LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //LogI(fullPath, GetLastError());
 /*
     //the following textures require spherical mapping.
     sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/earth.raw");
@@ -320,6 +367,15 @@ int GetRingTextureID(int idx)
     return -1;
 }
 
+int GetNebulaTextureID(int idx)
+{
+    if (idx >= 0 && idx < numnebtex)
+    {
+        return _neb_textures[idx];
+    }
+    return -1;
+}
+
 int GetTextureType(int idx)
 {
     if (idx >= 0 && idx < numstartex)
@@ -347,13 +403,22 @@ int GetRingTextureType(int idx)
     return -1;
 }
 
+int GetNebulaTextureType(int idx)
+{
+    if (idx >= 0 && idx < numnebtex)
+    {
+        return _neb_types[idx];
+    }
+    return -1;
+}
+
 GLUquadric * GetQuadricPointer(int idx)
 {
     if (idx >= 0 && idx < numstartex)
     {
         return _planetquads[idx];
     }
-    return -1;
+    return (GLUquadric *)-1;
 }
 
 int GetTextureCount()
@@ -371,6 +436,10 @@ int GetRingTextureCount()
     return numringtex;
 }
 
+int GetNebulaTextureCount()
+{
+    return numnebtex;
+}
 /*
 Texture map in solid sphere using GLUT(OpenGL)
 

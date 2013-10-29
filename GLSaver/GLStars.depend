@@ -88,7 +88,7 @@
 1382417242 c:\projects\github\glsaver\glsaver\logger.h
 	<Windows.h>
 
-1382782690 source:c:\projects\github\glsaver\glsaver\texture.c
+1383058570 source:c:\projects\github\glsaver\glsaver\texture.c
 	"texture.h"
 	<stdio.h>
 	"logger.h"
@@ -98,11 +98,11 @@
 	<stdio.h>
 	<math.h>
 
-1382778950 c:\projects\github\glsaver\glsaver\texture.h
+1383058494 c:\projects\github\glsaver\glsaver\texture.h
 	<gl/gl.h>
 	<gl/glu.h>
 
-1383042116 source:c:\projects\github\glsaver\glsaver\animation.c
+1383059553 source:c:\projects\github\glsaver\glsaver\animation.c
 	"animation.h"
 	<gl/gl.h>
 	<gl/glu.h>
