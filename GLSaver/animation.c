@@ -6,8 +6,9 @@
 #include "texture.h"
 
 //This file contains "private" declarations used internally by this file.
-int _num_stars = 7200;   //how many stars to display
-int _num_rings = 4;//25;//100;   //how many rings to display
+int _num_stars = 5000;   //how many stars to display
+int _num_rings = 8;//25;//100;   //how many rings to display
+int _display_rings = 0;
 int nearest = 400;
 int farthest = 1;
 int Width = 0;
@@ -41,7 +42,10 @@ void SortRings(int print);
 void SetupAnimation(int w, int h)
 {
     if (h < 1080)
-        _num_stars = 3600;
+    {
+        _num_stars = 2500;
+        _display_rings = 1;
+    }
     Width = w / 10;
     Height = h / 6;
 
@@ -55,6 +59,15 @@ void SetupAnimation(int w, int h)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, (GLdouble)(nearest - 20), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    glFogi(GL_FOG_MODE, GL_LINEAR);        // Fog Mode
+    GLfloat fogColor[4]= {0.9f, 0.9f, 0.9f, 0.01f};      // Fog Color
+    glFogfv(GL_FOG_COLOR, fogColor);            // Set Fog Color
+    glFogf(GL_FOG_DENSITY, 0.0091f);              // How Dense Will The Fog Be
+    glHint(GL_FOG_HINT, GL_DONT_CARE);          // Fog Hint Value
+    glFogf(GL_FOG_END, nearest);             // Fog Start Depth
+    glFogf(GL_FOG_START, farthest);               // Fog End Depth
+    glEnable(GL_FOG);                   // Enables GL_FOG
+
     //camera xyz, the xyz to look at, and the up vector (+y is up)
     _stars = (_lp_vertex)malloc(_num_stars * sizeof(_vertex));
     _rings = (_lp_vertex)malloc(_num_rings * sizeof(_vertex));
@@ -282,16 +295,18 @@ void Render(HDC * hDC) //increment and display
         _curr++;
     }
 */
-    _curr = _rings;
-    //SortRings(1);
-    for (i = 0; i < _num_rings; i++)
+    if (_display_rings)
     {
-        //DrawRing(_curr);
-        DrawRing(_sringidx[i]);
-        CheckRing(_curr, i, 0);
-        _curr++;
+        _curr = _rings;
+        SortRings(0);
+        for (i = 0; i < _num_rings; i++)
+        {
+            //DrawRing(_curr);
+            DrawRing(_sringidx[i]);
+            CheckRing(_curr, i, 0);
+            _curr++;
+        }
     }
-
     glDisable(GL_TEXTURE_2D);
     SwapBuffers(*hDC);
     glPopMatrix();
