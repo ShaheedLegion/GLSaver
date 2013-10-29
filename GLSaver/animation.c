@@ -7,13 +7,15 @@
 
 //This file contains "private" declarations used internally by this file.
 int _num_stars = 7200;   //how many stars to display
-int _num_rings = 25;//100;   //how many rings to display
+int _num_rings = 4;//25;//100;   //how many rings to display
 int nearest = 400;
 int farthest = 1;
 int Width = 0;
 int Height = 0;
 
 int _spin_triggers[3];
+int *_srings;
+int *_sringidx;
 
 /*
 We start with the 'simple case' of a traditional star which
@@ -33,7 +35,8 @@ _lp_vertex _stars = NULL;
 _lp_vertex _rings = NULL;
 
 void CheckStar(_lp_vertex star, int idx);  //forward declaration
-void CheckRing(_lp_vertex ring, int idx);  //forward declaration
+void CheckRing(_lp_vertex ring, int idx, int initial);  //forward declaration
+void SortRings(int print);
 
 void SetupAnimation(int w, int h)
 {
@@ -55,6 +58,8 @@ void SetupAnimation(int w, int h)
     //camera xyz, the xyz to look at, and the up vector (+y is up)
     _stars = (_lp_vertex)malloc(_num_stars * sizeof(_vertex));
     _rings = (_lp_vertex)malloc(_num_rings * sizeof(_vertex));
+    _srings = (int)malloc(_num_rings * sizeof(int));
+    _sringidx = (int)malloc(_num_rings * sizeof(int));
 
     LoadTextures();
 
@@ -73,12 +78,14 @@ void SetupAnimation(int w, int h)
     for (i = 0; i < _num_rings; i++)
     {
         _curr->z = nearest + 1;
-        CheckRing(_curr, i);
+        CheckRing(_curr, i, 1);
         _curr++;
     }
 
-    _spin_triggers[0] = SetTrigger(TRIG_MEDIUM, 465);    //delta is in frames
-    _spin_triggers[1] = SetTrigger(TRIG_SLOW, 800);    //delta is in frames
+    SortRings(0);
+
+    _spin_triggers[0] = SetTrigger(TRIG_SLOWEST, 165);    //delta is in frames
+    _spin_triggers[1] = SetTrigger(TRIG_SLOWEST, 200);    //delta is in frames
     _spin_triggers[2] = SetTrigger(TRIG_FASTEST, 1265);    //delta is in frames
 }
 
@@ -87,6 +94,8 @@ void CleanupAnimation()
 {
     free(_stars);
     free(_rings);
+    free(_srings);
+    free(_sringidx);
     CleanupTriggers();
 }
 
@@ -113,18 +122,21 @@ void CheckStar(_lp_vertex star, int idx)
     }
 }
 
-void CheckRing(_lp_vertex ring, int idx)
+void CheckRing(_lp_vertex ring, int idx, int initial)
 {
     if (idx < _num_rings)
     {
         ring->z++;
         if (ring->z > nearest)
         {
-            int w = Width / 5;
-            int h = Height / 10;
+            //int w = Width / 5;
+            //int h = Height / 10;
             ring->x = 0;//(rand() % w) - (w / 2);
             ring->y = 0;//(rand() % h) - (h / 2);
-            ring->z = (nearest / _num_rings) * idx;//(rand() % nearest);
+            if (initial)
+                ring->z = (nearest / _num_rings) * idx;//(rand() % nearest);
+            else
+                ring->z = _srings[0] - (nearest / _num_rings);
 
             ring->tex_type = -1;    //set to not have texture by default
             ring->id = -1;
@@ -140,6 +152,47 @@ void CheckRing(_lp_vertex ring, int idx)
             //LogI("ring tex id:", ring->id);
         }
     }
+}
+
+void SortRings(int print)
+{
+    int i, n, temp, swapped;
+    for (i = 0; i < _num_rings; i++)
+    {
+        _srings[i] = _rings[i].z;   //sort based on the z-position of each vertex
+        _sringidx[i] = i;
+    }
+
+   n = _num_rings;
+   do {
+      swapped = 0;
+      for (i = 0; i < _num_rings-1; i++)
+      {
+         if (_srings[i] > _srings[i + 1])
+         {
+            temp = _srings[i];
+            _srings[i] = _srings[i + 1];
+            _srings[i + 1] = temp;
+
+            temp = _sringidx[i];
+            _sringidx[i] = _sringidx[i + 1];
+            _sringidx[i + 1] = temp;
+            swapped = 1;
+         }
+      } //end for
+      --n;
+   } while (swapped);
+
+   if (print > 0)
+   {
+        for (i = 0; i < _num_rings; i++)
+        {
+            LogI("Ring Idx: ", i);
+            LogI("Sorted Z: ", _srings[i]);
+            LogI("Sorted Idx: ", _sringidx[i]);
+        }
+        LogI("Sort Algorithm Complete - ", 0);
+   }
 }
 
 int CalculateColor(int distance)
@@ -184,9 +237,12 @@ void DrawPlanet(_lp_vertex star)
     }
 }
 
-void DrawRing(_lp_vertex ring)
+//void DrawRing(_lp_vertex ring)
+void DrawRing(int i)
 {
     float offset = 2.29;    //determines the size of the ring
+    _lp_vertex ring = &_rings[i];
+
     if (ring->tex_type == TYPE_RING)
     {
         glBindTexture(GL_TEXTURE_2D, ring->id);
@@ -227,10 +283,12 @@ void Render(HDC * hDC) //increment and display
     }
 */
     _curr = _rings;
+    //SortRings(1);
     for (i = 0; i < _num_rings; i++)
     {
-        DrawRing(_curr);
-        CheckRing(_curr, i);
+        //DrawRing(_curr);
+        DrawRing(_sringidx[i]);
+        CheckRing(_curr, i, 0);
         _curr++;
     }
 

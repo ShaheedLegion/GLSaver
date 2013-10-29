@@ -38,6 +38,9 @@ void UpdateTriggerValue(_lp_trigger _trig)
 	double trigdelta = 0.0;
 	switch (_trig->_speed)
 	{
+	    case TRIG_SLOWEST:
+            trigdelta = 0.001;
+            break;
 		case TRIG_SLOW:
 			trigdelta = 0.006;
 			break;
