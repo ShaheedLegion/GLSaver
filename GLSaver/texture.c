@@ -1,6 +1,8 @@
 #include "texture.h"
 #include <stdio.h>
 #include "logger.h"
+#include "noise.h"
+
 #define numstartex 4
 #define numplanettex 3
 #define numringtex 3
@@ -120,6 +122,48 @@ int LoadNebulaTexture(char * tex, int w, int h)
             LogI(tex, 1);
             return -1;
         }
+
+        // set the texture type
+        _neb_types[_curr_neb_tex] = TYPE_NEBULA;
+        // Generate and Bind The Texture
+        glBindTexture(GL_TEXTURE_2D, _neb_textures[_curr_neb_tex]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                     _text->_w, _text->_h,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _text->_data);
+        int _retval = _curr_neb_tex;
+        //SaveTexture(_text, _retval);
+        _curr_neb_tex++;
+
+        free(_text->_data); //clean up any ram we used for the texture data
+        _text->_data = 0;
+        free(_text);    //clean up any ram we used for the texture
+
+        return _retval;
+    }
+    return -1;
+}
+
+int GenerateNebulaTexture(int w, int h, int age)
+{
+    if (_curr_neb_tex < numnebtex)
+    {
+        _lp_texture _text = (_lp_texture)malloc(1 * sizeof(_texture));
+
+        _text->_w = w; //simply generate textures to match these params
+        _text->_h = h;
+        _text->bpp = 32;
+
+        int dataSize = ((_text->_w * _text->_h) * (_text->bpp / 8));// * sizeof(unsigned char);
+        _text->_data = (unsigned char *)malloc(dataSize);//LoadTextureFile(tex, w, h, 32);    //load the texture here...
+
+/// <param name="cover">Nebula cover from 0 (no nebula) to 255 (all nebula). Default is 150</param>
+/// <param name="sharpness">Nebula sharpness (color gradient) from 0 to 1; Default 0.985</param>
+/// <param name="time">Nebula age, default is 9; Use different values for different nebulas</param>
+        CreateNebula(_text->_data, w, h, 140, 0.485, age);
 
         // set the texture type
         _neb_types[_curr_neb_tex] = TYPE_NEBULA;
@@ -314,12 +358,14 @@ void LoadTextures()
     LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
     //LogI(fullPath, GetLastError());
 
-    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-light.raw");
-    LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-light.raw");
+    //LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    GenerateNebulaTexture(512, 512, 5);
     //LogI(fullPath, GetLastError());
 
-    sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-dark.raw");
-    LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    //sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/nebula-dark.raw");
+    //LoadNebulaTexture(fullPath, 512, 512);    //takes care of the texture binding
+    GenerateNebulaTexture(512, 512, 3);
     //LogI(fullPath, GetLastError());
 /*
     //the following textures require spherical mapping.
