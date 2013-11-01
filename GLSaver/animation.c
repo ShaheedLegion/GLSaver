@@ -188,12 +188,13 @@ void CheckNebula(_lp_vertex neb, int idx)
 {
     if (idx < _num_neb)
     {
-        neb->z++;
+        //neb->z++;
         if (neb->z > nearest)
         {//change this logic to form clusters.
-            neb->x = (rand() % Width) - (Width / 2);
-            neb->y = (rand() % Height) - (Height / 2);
-            neb->z = (rand() % nearest);
+            neb->z = nearest - 35;
+            neb->x = 0;//(rand() % Width) - (Width / 2);
+            neb->y = 0;//(rand() % Height) - (Height / 2);
+            //neb->z = (rand() % nearest);
 
             neb->tex_type = -1;    //set to not have texture by default
             neb->id = -1;
@@ -265,7 +266,7 @@ int CalculateColor(int distance)
 
 void DrawStar(_lp_vertex star)
 {
-    float offset = 0.05;    //determines the size of the star
+    float offset = 0.15;    //determines the size of the star
     if (star->tex_type == TYPE_STAR)
     {
         glBindTexture(GL_TEXTURE_2D, star->id);
@@ -310,7 +311,7 @@ void DrawRing(int i)
 
 void DrawNebula(_lp_vertex neb)
 {
-    float offset = 4.9;    //determines the size of the nebula
+    float offset = 6.2;    //determines the size of the nebula
     if (neb->tex_type == TYPE_NEBULA)
     {
         glBindTexture(GL_TEXTURE_2D, neb->id);

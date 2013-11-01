@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="animation.c" open="1" top="0" tabpos="2">
-		<Cursor position="1995" topLine="57" />
+	<File name="animation.c" open="1" top="1" tabpos="2">
+		<Cursor position="9196" topLine="299" />
 	</File>
 	<File name="animation.h" open="1" top="0" tabpos="3">
-		<Cursor position="0" topLine="0" />
+		<Cursor position="195" topLine="0" />
 	</File>
 	<File name="logger.c" open="1" top="0" tabpos="6">
 		<Cursor position="0" topLine="0" />
@@ -16,13 +16,16 @@
 	<File name="main.c" open="1" top="0" tabpos="1">
 		<Cursor position="0" topLine="0" />
 	</File>
+	<File name="noise.h" open="1" top="0" tabpos="10">
+		<Cursor position="7478" topLine="219" />
+	</File>
 	<File name="texture.c" open="1" top="0" tabpos="7">
-		<Cursor position="13736" topLine="416" />
+		<Cursor position="11980" topLine="321" />
 	</File>
 	<File name="texture.h" open="1" top="0" tabpos="8">
 		<Cursor position="282" topLine="2" />
 	</File>
-	<File name="trigger.c" open="1" top="1" tabpos="4">
+	<File name="trigger.c" open="1" top="0" tabpos="4">
 		<Cursor position="374" topLine="11" />
 	</File>
 	<File name="trigger.h" open="1" top="0" tabpos="9">

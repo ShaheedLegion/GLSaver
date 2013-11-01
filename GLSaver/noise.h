@@ -217,9 +217,10 @@ void CreateNebula(unsigned char * tex, int width, int height, float cover, float
             unsigned char value = PerlinNoise3D(xMul, yMul, z, alpha, beta, 7);
 
             value = _expFilter[value];
+            pixelsARGB[offset] = 0;
             if (value == 0)
             {
-                pixelsARGB[offset] = 255;
+                //pixelsARGB[offset] = 0;
                 offset++;
                 continue;
             }
@@ -235,9 +236,14 @@ void CreateNebula(unsigned char * tex, int width, int height, float cover, float
             g = _expFilter[g];
             b = _expFilter[b];
 
-            pixelsARGB[offset] = (((value * r) >> 8) << 24) |
-                ((value * g) & 0xFF00) |
-                ((value * b) >> 16) | (255 << 8);
+            unsigned char * pixdata = (unsigned char *)&(pixelsARGB[offset]);
+            pixdata[0] = (value * r)>>8;
+            pixdata[1] = (value * g)>>8;
+            pixdata[2] = (value * b)>>8;
+            pixdata[3] = 255;
+            //pixelsARGB[offset] = (((value * r) >> 8) << 24) |
+            //    ((value * g) & 0xFF00) |
+            //    ((value * b) >> 16) | (255 << 8);
 
             offset++;
         } // for (int x = 0; x < width; x++)
