@@ -6,7 +6,7 @@
 #include "texture.h"
 
 //This file contains "private" declarations used internally by this file.
-int _num_stars = 5000;   //how many stars to display
+int _num_stars = 2000;   //how many stars to display
 int _num_rings = 8;//25;//100;   //how many rings to display
 int _num_neb = 6;   //all of these will form part of the same nebula
 
@@ -46,12 +46,12 @@ void SortRings(int print);
 
 void SetupAnimation(int w, int h)
 {
-    if (h < 1080)
-    {
-        _num_stars = 2500;
+    //if (h <= 1080)
+    //{
+    //    _num_stars = 2500;
         _display_rings = 1;
         _display_nebulae = 1;
-    }
+    //}
 
     Width = w / 10;
     Height = h / 6;

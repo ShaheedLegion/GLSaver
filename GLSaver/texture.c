@@ -3,6 +3,12 @@
 #include "logger.h"
 #include "noise.h"
 
+//textures contained in these files
+#include "Textures/ring-blue.h"
+#include "Textures/star-blue.h"
+#include "Textures/star-green.h"
+#include "Textures/star-yellow.h"
+
 #define numstartex 4
 #define numplanettex 3
 #define numringtex 1
@@ -105,6 +111,44 @@ int LoadStarTexture(char * tex, int w, int h)
         free(_text->_data); //clean up any ram we used for the texture data
         _text->_data = 0;
         free(_text);    //clean up any ram we used for the texture
+
+        return _retval;
+    }
+    return -1;
+}
+
+int CopyStarTexture(const unsigned char * src, const long int sz, int w, int h)
+{
+    if (_curr_tex < numstartex)
+    {
+        _lp_texture _tex = (_lp_texture)malloc(1 * sizeof(_texture));
+
+        _tex->_w = w; //simply generate textures to match these params
+        _tex->_h = h;
+        _tex->bpp = 32;
+
+        int dataSize = ((_tex->_w * _tex->_h) * (_tex->bpp / 8));
+        _tex->_data = (unsigned char *)malloc(dataSize);
+
+        memcpy(_tex->_data, src, sz);
+        // set the texture type
+        _types[_curr_tex] = TYPE_STAR;
+        // Generate and Bind The Texture
+        glBindTexture(GL_TEXTURE_2D, _star_textures[_curr_tex]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                     _tex->_w, _tex->_h,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _tex->_data);
+        int _retval = _curr_tex;
+        //SaveTexture(_text, _retval);
+        _curr_tex++;
+
+        free(_tex->_data); //clean up any ram we used for the texture data
+        _tex->_data = 0;
+        free(_tex);    //clean up any ram we used for the texture
 
         return _retval;
     }
@@ -266,6 +310,47 @@ int LoadRingTexture(char * tex, int w, int h)
     return -1;
 }
 
+int CopyRingTexture(const unsigned char * src, const long int sz, int w, int h)
+{
+    if (_curr_ring_tex < numringtex)
+    {
+        _lp_texture _tex = (_lp_texture)malloc(1 * sizeof(_texture));
+
+        _tex->_w = w; //simply generate textures to match these params
+        _tex->_h = h;
+        _tex->bpp = 32;
+
+        int dataSize = ((_tex->_w * _tex->_h) * (_tex->bpp / 8));
+        _tex->_data = (unsigned char *)malloc(dataSize);
+
+        memcpy(_tex->_data, src, sz);
+
+        // set the texture type
+        _ring_types[_curr_ring_tex] = TYPE_RING;
+        // Generate and Bind The Texture
+        glBindTexture(GL_TEXTURE_2D, _ring_textures[_curr_ring_tex]);
+        //LogI("Binding Ring Tex idx:", _curr_ring_tex);
+        //LogI(tex, _ring_textures[_curr_ring_tex]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                     _tex->_w, _tex->_h,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, _tex->_data);
+        int _retval = _curr_ring_tex;
+        //SaveTexture(_text, _retval, 32);
+        _curr_ring_tex++;
+
+        free(_tex->_data); //clean up any ram we used for the texture data
+        _tex->_data = 0;
+        free(_tex);    //clean up any ram we used for the texture
+
+        return _retval;
+    }
+    return -1;
+}
+
 void ExtractPath(char * output, char * input, int size)
 {
     int x;
@@ -310,7 +395,7 @@ void LoadTextures()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
-
+/*
     //Get path to file here to make sure we run correctly when triggered by Windows.
     TCHAR lpFileName[512];
     memset(lpFileName, 0 , 512 * sizeof(TCHAR));
@@ -318,8 +403,14 @@ void LoadTextures()
     memset(fullPath, 0 , 1024 * sizeof(char));
     DWORD nStrLen = GetModuleFileName(NULL,lpFileName,512);
     //LogI(lpFileName, 0);
+*/
+    CopyStarTexture(star_blue_raw, star_blue_raw_size, 256, 256);
+    CopyStarTexture(star_green_raw, star_green_raw_size, 256, 256);
+    CopyStarTexture(star_yellow_raw, star_yellow_raw_size, 256, 256);
 
+    CopyRingTexture(ring_blue_raw, ring_blue_raw_size, 512, 512);
 
+/*
     char SpareBuffer[512];
     memset(SpareBuffer, 0 , 512 * sizeof(char));
     ExtractPath(SpareBuffer, lpFileName, nStrLen);
@@ -336,7 +427,7 @@ void LoadTextures()
     sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-blue.raw");
     LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
     //LogI(fullPath, GetLastError());
-
+*/
     //sprintf(fullPath, "%s/%s", SpareBuffer, "Textures/ring-red.raw");
     //LoadRingTexture(fullPath, 512, 512);    //takes care of the texture binding
     //LogI(fullPath, GetLastError());

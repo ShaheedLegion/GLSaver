@@ -50,6 +50,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="noise.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="texture.c">
 			<Option compilerVar="CC" />
 		</Unit>
