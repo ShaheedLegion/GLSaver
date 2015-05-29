@@ -1,6 +1,8 @@
 #ifndef NOISE_H_INCLUDED
 #define NOISE_H_INCLUDED
 
+#include <cmath>
+
 #define  PRECISION_SHIFT (int)12
 #define  PRECISION_VALUE (int)(1 << PRECISION_SHIFT)
 #define  PRECISION_SHIFT_TO_BYTE_RANGE (int)(PRECISION_SHIFT - 8)
@@ -164,7 +166,7 @@ unsigned char ExpFilter(unsigned char value, float cover, float sharpness)
     float c = (float)(value - (255 - cover));  //reduce coverage
     if (c < 0) c = 0;            // prevent from going negative
 
-    unsigned char val = (unsigned  char)(255 - (pow(sharpness, c) * 255));
+    unsigned char val = (unsigned  char)(255 - (std::pow(sharpness, c) * 255));
     return val;
 }
 

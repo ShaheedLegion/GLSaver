@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H_INCLUDED
 #define TEXTURE_H_INCLUDED
 
+#include <Windows.h>
 #include <gl/gl.h>
 #include <gl/glu.h>
 

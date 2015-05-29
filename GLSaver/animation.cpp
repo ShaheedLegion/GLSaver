@@ -1,4 +1,5 @@
 #include "animation.h"
+#include <Windows.h>
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include "logger.h"

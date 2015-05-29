@@ -1,4 +1,7 @@
 #include "texture.h"
+#include <Windows.h>
+#include <gl/gl.h>
+#include <gl/glu.h>
 #include <stdio.h>
 #include "logger.h"
 #include "noise.h"
